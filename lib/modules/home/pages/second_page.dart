@@ -8,7 +8,6 @@ class SecondPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: Colors.amber,
         title: const Text('SecondPage'),
       ),
       body: Column(

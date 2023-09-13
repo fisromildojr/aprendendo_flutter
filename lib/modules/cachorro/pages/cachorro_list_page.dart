@@ -1,5 +1,7 @@
 import 'package:aprendendo_flutter/modules/cachorro/models/cachorro_model.dart';
+import 'package:aprendendo_flutter/widgets/my_drawer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class CachorroListPage extends StatefulWidget {
   const CachorroListPage({super.key});
@@ -9,6 +11,12 @@ class CachorroListPage extends StatefulWidget {
 }
 
 class _CachorroListPageState extends State<CachorroListPage> {
+  final _formKey = GlobalKey<FormState>();
+
+  final _nomeController = TextEditingController();
+  final _descricaoController = TextEditingController();
+  final _idadeController = TextEditingController();
+
   List<Cachorro> cachorros = [
     Cachorro(
       id: 1,
@@ -30,76 +38,133 @@ class _CachorroListPageState extends State<CachorroListPage> {
     ),
   ];
 
-  List<Widget> _buildCachorros() {
-    List<Widget> widgets = [];
-    for (var element in cachorros) {
-      widgets.add(ListTile(
-        title: Text(element.nome ?? '-'),
-        subtitle: Text(element.descricao ?? '-'),
-      ));
-    }
-
-    return widgets;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: Drawer(
-        child: ListView(
-          children: const [
-            UserAccountsDrawerHeader(
-              accountName: Text("ROMILDOJR"),
-              accountEmail: Text("fis.romildojr@gmail.com"),
-              currentAccountPicture: CircleAvatar(
-                backgroundImage: AssetImage("assets/images/avatar.jpg"),
-              ),
-            ),
-            // ElevatedButton(
-            //   onPressed: () {},
-            //   child: const Text(
-            //     "Botão",
-            //     style: TextStyle(
-            //       color: MyColors.textLight,
-            //     ),
-            //   ),
-            // ),
-            Card(
-              child: ListTile(
-                title: Text('Home'),
-              ),
-            ),
-            Card(
-              child: ListTile(
-                title: Text('Cachorros'),
-              ),
-            ),
-            Card(
-              child: ListTile(
-                title: Text('Gatos'),
-              ),
-            ),
-          ],
-        ),
-      ),
+      drawer: const MyDrawer(),
       appBar: AppBar(
-        centerTitle: true,
         title: const Text(
           "Listagem de Cachorros",
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          var cachorro = Cachorro(
-            nome: 'Catuaba',
-            descricao: 'Preto',
-            idade: 10,
+          _nomeController.clear();
+          _descricaoController.clear();
+          _idadeController.clear();
+
+          var alert = AlertDialog(
+            title: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("Novo Cachorro"),
+              ],
+            ),
+            content: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: _nomeController,
+                    autofocus: true,
+                    decoration: const InputDecoration(
+                      label: Text('Nome'),
+                      hintText: 'Digite o Nome',
+                    ),
+                    keyboardType: TextInputType.text,
+                    onFieldSubmitted: (_) => _save(),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Campo obrigatório';
+                      } else if (value.length < 3) {
+                        return 'Mínimo 3 caracteres';
+                      }
+                      // Retorna null se passar nas validações
+                      return null;
+                    },
+                  ),
+                  TextFormField(
+                    controller: _descricaoController,
+                    keyboardType: TextInputType.text,
+                    decoration: const InputDecoration(
+                      label: Text('Descrição'),
+                      hintText: 'Digite a Descrição',
+                    ),
+                    onFieldSubmitted: (_) => _save(),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Campo obrigatório';
+                      } else if (value.length < 5) {
+                        return 'Mínimo 5 caracteres';
+                      }
+                      // Retorna null se passar nas validações
+                      return null;
+                    },
+                  ),
+                  TextFormField(
+                    controller: _idadeController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      label: Text('Idade'),
+                      hintText: 'Digite a Idade',
+                    ),
+                    onFieldSubmitted: (_) => _save(),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                    ],
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Campo obrigatório';
+                      }
+                      // Retorna null se passar nas validações
+                      return null;
+                    },
+                  ),
+                  // TextFormField(
+                  //   autofocus: true,
+                  //   keyboardType: TextInputType.text,
+                  //   onChanged: (value) => cachorro.nome = value,
+                  //   onFieldSubmitted: (value) {
+                  //     if (_formKey.currentState?.validate() ?? false) {
+                  //       cachorro.nome = value;
+                  //       setState(() {
+                  //         cachorros.add(cachorro);
+                  //       });
+                  //       Navigator.of(context).pop();
+                  //     }
+                  //   },
+                  //   validator: (value) {
+                  //     if (value == null || value.isEmpty) {
+                  //       return 'Campo obrigatório';
+                  //     } else if (value.length < 3) {
+                  //       return 'Mínimo 3 caracteres';
+                  //     }
+                  //     // Retorna null se passar nas validações
+                  //     return null;
+                  //   },
+                  // ),
+                ],
+              ),
+            ),
           );
 
-          setState(() {
-            cachorros.add(cachorro);
-          });
+          showDialog(
+            context: context,
+            builder: (context) => alert,
+          );
         },
+        // onPressed: () {
+        //   var cachorro = Cachorro(
+        //     nome: 'Catuaba',
+        //     descricao: 'Preto',
+        //     idade: 10,
+        //   );
+
+        //   setState(() {
+        //     cachorros.add(cachorro);
+        //   });
+        // },
         child: const Icon(Icons.add),
       ),
       body: ListView.builder(
@@ -107,7 +172,13 @@ class _CachorroListPageState extends State<CachorroListPage> {
         itemBuilder: (ctx, index) {
           return ListTile(
             title: Text(cachorros[index].nome ?? '-'),
-            subtitle: Text(cachorros[index].descricao ?? '-'),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(cachorros[index].descricao ?? '-'),
+                Text('${cachorros[index].idade} Anos'),
+              ],
+            ),
           );
         },
       ),
@@ -130,5 +201,20 @@ class _CachorroListPageState extends State<CachorroListPage> {
       //   ),
       // ),
     );
+  }
+
+  void _save() {
+    if (_formKey.currentState?.validate() ?? false) {
+      var cachorro = Cachorro(
+        nome: _nomeController.text,
+        descricao: _descricaoController.text,
+        idade: int.parse(_idadeController.text),
+      );
+
+      setState(() {
+        cachorros.add(cachorro);
+      });
+      Navigator.of(context).pop();
+    }
   }
 }

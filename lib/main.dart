@@ -1,6 +1,3 @@
-import 'dart:developer';
-
-import 'package:aprendendo_flutter/modules/cachorro/models/cachorro_model.dart';
 import 'package:aprendendo_flutter/modules/cachorro/pages/cachorro_list_page.dart';
 import 'package:aprendendo_flutter/modules/home/pages/home_page.dart';
 import 'package:aprendendo_flutter/modules/home/pages/second_page.dart';
@@ -23,7 +20,7 @@ class MyApp extends StatelessWidget {
       theme: MyTheme.lightTheme,
       darkTheme: MyTheme.darkTheme,
       themeMode: ThemeMode.system,
-      home:  HomePage(),
+      home: HomePage(),
       routes: {
         AppRoutes.HOME: (context) => HomePage(),
         AppRoutes.SEGUNDA_PAGINA: (context) => SecondPage(),

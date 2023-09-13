@@ -31,6 +31,8 @@ class MyTheme {
         ),
       ),
     ),
+    floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: MyColors.primaryColor),
   );
 
   static final darkTheme = ThemeData.dark(

@@ -1,4 +1,5 @@
 import 'package:aprendendo_flutter/modules/cachorro/models/cachorro_model.dart';
+import 'package:aprendendo_flutter/modules/cachorro/widgets/form_cachorro.dart';
 import 'package:aprendendo_flutter/widgets/my_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -48,136 +49,29 @@ class _CachorroListPageState extends State<CachorroListPage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _nomeController.clear();
-          _descricaoController.clear();
-          _idadeController.clear();
-
-          var alert = AlertDialog(
-            title: const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text("Novo Cachorro"),
-              ],
-            ),
-            content: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextFormField(
-                    controller: _nomeController,
-                    autofocus: true,
-                    decoration: const InputDecoration(
-                      label: Text('Nome'),
-                      hintText: 'Digite o Nome',
-                    ),
-                    keyboardType: TextInputType.text,
-                    onFieldSubmitted: (_) => _save(),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Campo obrigatório';
-                      } else if (value.length < 3) {
-                        return 'Mínimo 3 caracteres';
-                      }
-                      // Retorna null se passar nas validações
-                      return null;
-                    },
-                  ),
-                  TextFormField(
-                    controller: _descricaoController,
-                    keyboardType: TextInputType.text,
-                    decoration: const InputDecoration(
-                      label: Text('Descrição'),
-                      hintText: 'Digite a Descrição',
-                    ),
-                    onFieldSubmitted: (_) => _save(),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Campo obrigatório';
-                      } else if (value.length < 5) {
-                        return 'Mínimo 5 caracteres';
-                      }
-                      // Retorna null se passar nas validações
-                      return null;
-                    },
-                  ),
-                  TextFormField(
-                    controller: _idadeController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      label: Text('Idade'),
-                      hintText: 'Digite a Idade',
-                    ),
-                    onFieldSubmitted: (_) => _save(),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                    ],
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Campo obrigatório';
-                      }
-                      // Retorna null se passar nas validações
-                      return null;
-                    },
-                  ),
-                  // TextFormField(
-                  //   autofocus: true,
-                  //   keyboardType: TextInputType.text,
-                  //   onChanged: (value) => cachorro.nome = value,
-                  //   onFieldSubmitted: (value) {
-                  //     if (_formKey.currentState?.validate() ?? false) {
-                  //       cachorro.nome = value;
-                  //       setState(() {
-                  //         cachorros.add(cachorro);
-                  //       });
-                  //       Navigator.of(context).pop();
-                  //     }
-                  //   },
-                  //   validator: (value) {
-                  //     if (value == null || value.isEmpty) {
-                  //       return 'Campo obrigatório';
-                  //     } else if (value.length < 3) {
-                  //       return 'Mínimo 3 caracteres';
-                  //     }
-                  //     // Retorna null se passar nas validações
-                  //     return null;
-                  //   },
-                  // ),
-                ],
-              ),
-            ),
-          );
-
-          showDialog(
-            context: context,
-            builder: (context) => alert,
-          );
-        },
-        // onPressed: () {
-        //   var cachorro = Cachorro(
-        //     nome: 'Catuaba',
-        //     descricao: 'Preto',
-        //     idade: 10,
-        //   );
-
-        //   setState(() {
-        //     cachorros.add(cachorro);
-        //   });
-        // },
+        onPressed: _create,
         child: const Icon(Icons.add),
       ),
       body: ListView.builder(
         itemCount: cachorros.length,
         itemBuilder: (ctx, index) {
-          return ListTile(
-            title: Text(cachorros[index].nome ?? '-'),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(cachorros[index].descricao ?? '-'),
-                Text('${cachorros[index].idade} Anos'),
-              ],
+          return Card(
+            child: ListTile(
+              title: Text(cachorros[index].nome ?? '-'),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(cachorros[index].descricao ?? '-'),
+                  Text('${cachorros[index].idade} Anos'),
+                ],
+              ),
+              trailing: IconButton(
+                onPressed: () => _edit(cachorros[index]),
+                icon: const Icon(
+                  Icons.edit,
+                  color: Colors.amber,
+                ),
+              ),
             ),
           );
         },
@@ -210,11 +104,78 @@ class _CachorroListPageState extends State<CachorroListPage> {
         descricao: _descricaoController.text,
         idade: int.parse(_idadeController.text),
       );
-
       setState(() {
         cachorros.add(cachorro);
       });
       Navigator.of(context).pop();
     }
+  }
+
+  void _update() {
+    if (_formKey.currentState?.validate() ?? false) {
+      var cachorro = Cachorro(
+        nome: _nomeController.text,
+        descricao: _descricaoController.text,
+        idade: int.parse(_idadeController.text),
+      );
+      setState(() {
+        cachorros.add(cachorro);
+      });
+      Navigator.of(context).pop();
+    }
+  }
+
+  void _create() {
+    _nomeController.clear();
+    _descricaoController.clear();
+    _idadeController.clear();
+
+    var alert = AlertDialog(
+      title: const Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text("Novo Cachorro"),
+        ],
+      ),
+      content: FormCachorro(
+        descricaoController: _descricaoController,
+        nomeController: _nomeController,
+        idadeController: _idadeController,
+        onFieldSubmitted: (_) => _save(),
+        formKey: _formKey,
+      ),
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) => alert,
+    );
+  }
+
+  void _edit(Cachorro cachorro) {
+    _nomeController.text = cachorro.nome ?? '';
+    _descricaoController.text = cachorro.descricao ?? '';
+    _idadeController.text = cachorro.idade?.toString() ?? '';
+
+    var alert = AlertDialog(
+      title: const Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text("Editando Cachorro"),
+        ],
+      ),
+      content: FormCachorro(
+        descricaoController: _descricaoController,
+        nomeController: _nomeController,
+        idadeController: _idadeController,
+        onFieldSubmitted: (_) => _save(),
+        formKey: _formKey,
+      ),
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) => alert,
+    );
   }
 }

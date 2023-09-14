@@ -65,12 +65,24 @@ class _CachorroListPageState extends State<CachorroListPage> {
                   Text('${cachorros[index].idade} Anos'),
                 ],
               ),
-              trailing: IconButton(
-                onPressed: () => _edit(cachorros[index]),
-                icon: const Icon(
-                  Icons.edit,
-                  color: Colors.amber,
-                ),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    onPressed: () => _edit(cachorros[index]),
+                    icon: const Icon(
+                      Icons.edit,
+                      color: Colors.amber,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => _delete(cachorros[index]),
+                    icon: const Icon(
+                      Icons.delete,
+                      color: Colors.red,
+                    ),
+                  ),
+                ],
               ),
             ),
           );
@@ -111,18 +123,30 @@ class _CachorroListPageState extends State<CachorroListPage> {
     }
   }
 
-  void _update() {
+  void _update(Cachorro cachorro) {
     if (_formKey.currentState?.validate() ?? false) {
-      var cachorro = Cachorro(
-        nome: _nomeController.text,
-        descricao: _descricaoController.text,
-        idade: int.parse(_idadeController.text),
-      );
+      // Recupera o cachorro para edição
+      var cachorroEdit = cachorros.firstWhere((element) => element == cachorro);
+
+      // Remove o cachorro da lista
+      cachorros.removeWhere((element) => element == cachorro);
+
+      // Edita o cachorro recuperado com os novos valores
+      cachorroEdit.nome = _nomeController.text;
+      cachorroEdit.descricao = _descricaoController.text;
+      cachorroEdit.idade = int.parse(_idadeController.text);
+
       setState(() {
-        cachorros.add(cachorro);
+        cachorros.add(cachorroEdit);
       });
       Navigator.of(context).pop();
     }
+  }
+
+  void _delete(Cachorro cachorro) {
+    setState(() {
+      cachorros.removeWhere((element) => element == cachorro);
+    });
   }
 
   void _create() {
@@ -168,7 +192,7 @@ class _CachorroListPageState extends State<CachorroListPage> {
         descricaoController: _descricaoController,
         nomeController: _nomeController,
         idadeController: _idadeController,
-        onFieldSubmitted: (_) => _save(),
+        onFieldSubmitted: (_) => _update(cachorro),
         formKey: _formKey,
       ),
     );

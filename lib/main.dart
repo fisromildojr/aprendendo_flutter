@@ -1,12 +1,23 @@
+import 'package:aprendendo_flutter/modules/cachorro/controllers/cachorro_controller.dart';
 import 'package:aprendendo_flutter/modules/cachorro/pages/cachorro_list_page.dart';
 import 'package:aprendendo_flutter/modules/home/pages/home_page.dart';
 import 'package:aprendendo_flutter/modules/home/pages/second_page.dart';
 import 'package:aprendendo_flutter/theme/my_theme.dart';
 import 'package:aprendendo_flutter/utils/app_routes.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => CachorroController(),
+        ),
+      ],
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

@@ -1,8 +1,9 @@
+import 'package:aprendendo_flutter/modules/cachorro/controllers/cachorro_controller.dart';
 import 'package:aprendendo_flutter/modules/cachorro/models/cachorro_model.dart';
 import 'package:aprendendo_flutter/modules/cachorro/widgets/form_cachorro.dart';
 import 'package:aprendendo_flutter/widgets/my_drawer.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 class CachorroListPage extends StatefulWidget {
   const CachorroListPage({super.key});
@@ -13,34 +14,15 @@ class CachorroListPage extends StatefulWidget {
 
 class _CachorroListPageState extends State<CachorroListPage> {
   final _formKey = GlobalKey<FormState>();
+  late CachorroController controller;
 
   final _nomeController = TextEditingController();
   final _descricaoController = TextEditingController();
   final _idadeController = TextEditingController();
 
-  List<Cachorro> cachorros = [
-    Cachorro(
-      id: 1,
-      nome: 'Pitu',
-      descricao: 'Preto com manchas brancas',
-      idade: 2,
-    ),
-    Cachorro(
-      id: 2,
-      nome: 'Carote',
-      descricao: 'Branco',
-      idade: 5,
-    ),
-    Cachorro(
-      id: 3,
-      nome: 'Jamel',
-      descricao: 'Caramelo',
-      idade: 6,
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    controller = context.watch<CachorroController>();
     return Scaffold(
       drawer: const MyDrawer(),
       appBar: AppBar(
@@ -53,30 +35,30 @@ class _CachorroListPageState extends State<CachorroListPage> {
         child: const Icon(Icons.add),
       ),
       body: ListView.builder(
-        itemCount: cachorros.length,
+        itemCount: controller.lista.length,
         itemBuilder: (ctx, index) {
           return Card(
             child: ListTile(
-              title: Text(cachorros[index].nome ?? '-'),
+              title: Text(controller.lista[index].nome ?? '-'),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(cachorros[index].descricao ?? '-'),
-                  Text('${cachorros[index].idade} Anos'),
+                  Text(controller.lista[index].descricao ?? '-'),
+                  Text('${controller.lista[index].idade} Anos'),
                 ],
               ),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
-                    onPressed: () => _edit(cachorros[index]),
+                    onPressed: () => _edit(controller.lista[index]),
                     icon: const Icon(
                       Icons.edit,
                       color: Colors.amber,
                     ),
                   ),
                   IconButton(
-                    onPressed: () => _delete(cachorros[index]),
+                    onPressed: () => _delete(controller.lista[index]),
                     icon: const Icon(
                       Icons.delete,
                       color: Colors.red,
@@ -88,24 +70,6 @@ class _CachorroListPageState extends State<CachorroListPage> {
           );
         },
       ),
-
-      // body: ListView(
-      //   children: _buildCachorros(),
-      // ),
-
-      // body: SingleChildScrollView(
-      //   child: Column(
-      //     children: _buildCachorros(),
-      //     // children: [
-      //     //   // for(int i=0; i<cachorros.length; i++)
-      //     //   // ListTile(
-      //     //   //   title: Text(cachorros[i].nome ?? '-'),
-      //     //   //   subtitle: Text(cachorros[i].descricao ?? '-'),
-      //     //   // ),
-
-      //     // ],
-      //   ),
-      // ),
     );
   }
 
@@ -116,9 +80,7 @@ class _CachorroListPageState extends State<CachorroListPage> {
         descricao: _descricaoController.text,
         idade: int.parse(_idadeController.text),
       );
-      setState(() {
-        cachorros.add(cachorro);
-      });
+      controller.save(cachorro);
       Navigator.of(context).pop();
     }
   }
@@ -126,27 +88,25 @@ class _CachorroListPageState extends State<CachorroListPage> {
   void _update(Cachorro cachorro) {
     if (_formKey.currentState?.validate() ?? false) {
       // Recupera o cachorro para edição
-      var cachorroEdit = cachorros.firstWhere((element) => element == cachorro);
+      var cachorroEdit =
+          controller.lista.firstWhere((element) => element == cachorro);
 
       // Remove o cachorro da lista
-      cachorros.removeWhere((element) => element == cachorro);
+      controller.lista.removeWhere((element) => element == cachorro);
 
       // Edita o cachorro recuperado com os novos valores
       cachorroEdit.nome = _nomeController.text;
       cachorroEdit.descricao = _descricaoController.text;
       cachorroEdit.idade = int.parse(_idadeController.text);
 
-      setState(() {
-        cachorros.add(cachorroEdit);
-      });
+      controller.save(cachorroEdit);
+
       Navigator.of(context).pop();
     }
   }
 
   void _delete(Cachorro cachorro) {
-    setState(() {
-      cachorros.removeWhere((element) => element == cachorro);
-    });
+    controller.delete(cachorro);
   }
 
   void _create() {
